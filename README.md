@@ -1,26 +1,31 @@
-README - Simple x86 Bootloader "Hello, World!"
+# GRUB Multiboot Kernel — "Hello, world from GRUB kernel!"
 
-This is a minimal 16-bit x86 bootloader written in NASM assembly.
-When booted, it prints:
-
-Hello, world from bootloader!
-
-on the screen using BIOS interrupts.
+This is a minimal 32-bit **GRUB Multiboot 1 kernel** written in C and assembly.  
+When booted, it prints: ```Hello, world from GRUB kernel!``` to the screen.
 
 -----------------------------------------
 Project Structure
 
 ```txt
-project/
+saynaa-os
+├── LICENSE
+├── linker.ld
 ├── Makefile
 ├── README.md
-└── src/
-    └── boot.asm
+└── src
+    ├── boot.asm
+    ├── grub.cfg
+    ├── kernel.c
+    └── kernel.h
 ```
 
-- src/boot.asm   : Bootloader source code (512 bytes)
 - Makefile       : Automates building, running, and cleaning
-- build/         : Folder where compiled binaries are placed
+- build/         : Directory for build output
+- linker.ld      : Linker script for kernel binary
+- src/boot.asm   : grub bootloader assembly code
+- src/grub.cfg   : GRUB configuration file
+- src/kernel.c   : C source code for the kernel
+- src/kernel.h   : Header file with type definitions and constants
 
 -----------------------------------------
 Requirements
@@ -28,13 +33,10 @@ Requirements
 Tools needed:
 
 - nasm               : Assembler
-- qemu-system-x86_64 : Emulator
+- qemu-system-i386   : Emulator
 - make               : Build automation (usually preinstalled)
-
-Install on Linux:
-Debian/Ubuntu: sudo apt install nasm qemu-system make
-Arch:          sudo pacman -S nasm qemu make
-Gentoo:       sudo emerge nasm qemu make
+- clang              : C compiler
+- grub-mkrescue      : Create bootable ISO with GRUB
 
 -----------------------------------------
 Build Instructions
@@ -43,10 +45,6 @@ Run:
 ```bash
 make
 ```
-This creates the bootloader binary at:
-
-```build/boot.bin```
-
 -----------------------------------------
 Run in QEMU
 
@@ -55,12 +53,6 @@ Run:
 make run
 ```
 
-You should see:
-
-Hello, world from bootloader!
-
-Exit QEMU with Ctrl + C or by closing the window.
-
 -----------------------------------------
 Clean Build Files
 
@@ -68,24 +60,6 @@ Run:
 ```bash
 make clean
 ```
-
-This removes the build/ directory and generated files.
-
------------------------------------------
-How It Works
-
-- BIOS loads first 512 bytes of the boot device at 0x7C00.
-- boot.asm code:
-  1. Initializes segment registers.
-  2. Loads each character from the string using 'lodsb'.
-  3. Prints via BIOS INT 10h (teletype).
-  4. Stops CPU with 'hlt'.
-
------------------------------------------
-Bootloader Layout (512 bytes)
-
-Bytes 0–509   : Boot code and data
-Bytes 510–511 : Boot signature 0x55AA (required by BIOS)
 
 -----------------------------------------
 License
