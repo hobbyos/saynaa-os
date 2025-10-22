@@ -1,0 +1,53 @@
+# Ignore build folders
+build/
+obj/
+
+# Ignore editor files
+*.swp
+*.swo
+*.bak
+*.tmp
+*.~*
+
+# Ignore compiled object files
+*.o
+*.obj
+*.lo
+*.la
+
+# Ignore compiled binary files
+*.exe
+*.out
+*.app
+*.bin
+*.elf
+
+# Ignore libraries
+*.lib
+*.a
+*.so
+*.dylib
+*.dll
+
+# Ignore logs and debugging files
+*.log
+*.trace
+*.stackdump
+
+# Ignore core dumps
+core
+*.core
+*.coredump
+
+# Ignore temporary files
+*.temp
+*.cache
+*.pid
+*.lock
+
+# Ignore disk images
+*.iso
+*.img
+*.vmdk
+*.vdi
+*.qcow2
