@@ -21,7 +21,7 @@ $(BIN): $(SRC_ASM) $(SRC_C) | build
 	$(ASM) -f elf32 $(SRC_ASM) -o build/boot.o
 	$(CC) $(CFLAGS) -c $(SRC_C) -o build/kernel.o
 	$(LD) $(LDFLAGS) -o $(BIN) build/boot.o build/kernel.o
-	grub-file --is-x86-multiboot $(BIN)
+	grub-file --is-x86-multiboot2 $(BIN)
 
 $(ISO): $(BIN)
 	mkdir -p build/iso/boot/grub

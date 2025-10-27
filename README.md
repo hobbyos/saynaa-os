@@ -1,6 +1,6 @@
-# GRUB Multiboot Kernel — "Hello, world from GRUB kernel!"
+# GRUB Multiboot2 Kernel — "Hello, world from GRUB kernel!"
 
-This is a minimal 32-bit **GRUB Multiboot 1 kernel** written in C and assembly.  
+This is a minimal 32-bit **GRUB Multiboot2 kernel** written in C and assembly.  
 When booted, it prints: ```Hello, world from GRUB kernel!``` to the screen.
 
 -----------------------------------------
