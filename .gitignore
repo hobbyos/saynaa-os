@@ -1,6 +1,9 @@
-# Ignore build folders
+# Ignore build/temporary folders
 build/
 obj/
+base/
+temp/
+isodir/
 
 # Ignore editor files
 *.swp

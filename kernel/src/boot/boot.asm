@@ -6,8 +6,7 @@ BITS 32
 %define MB2_MAGIC    0xE85250D6
 %define MB2_ARCH     0
 %define MB2_FLAGS    0      ; minimal, no special features
-; Checksum: -(magic + arch + flags + header length)
-; header length = end - start, calculated automatically later
+%define MB2_CHECK    -(MB2_MAGIC + MB2_ARCH + MB2_FLAGS)
 
 ; Multiboot2 tags
 %define TAG_END       0
@@ -21,7 +20,7 @@ multiboot_start:
     dd MB2_MAGIC
     dd MB2_ARCH
     dd MB2_FLAGS
-    dd -(MB2_MAGIC + MB2_ARCH + MB2_FLAGS)  ; checksum
+    dd MB2_CHECK
 
     ; End tag (required)
 align 8

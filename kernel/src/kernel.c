@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include "kernel/kernel.h"
 
 void kernel_main() {
   char *video = (char *)VGA_ADDRESS;

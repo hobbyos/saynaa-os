@@ -1,38 +1,67 @@
-# Simple Makefile for GRUB Multiboot kernel
+export
 
-SRC_ASM = src/boot.asm
-SRC_C   = src/kernel.c
-GRUB_CFG = src/grub.cfg
-BIN     = build/kernel.bin
-ISO     = build/kernel.iso
+## OS NAME
+NAME = saynaa-os
 
-ASM     = nasm
-CC      = clang
-LD      = ld
-CFLAGS  = -m32 -ffreestanding -O2 -Wall -Wextra
-LDFLAGS = -m elf_i386 -T linker.ld -nostdlib
+CC         := clang
+LD         := ld
+ISO        := $(PWD)/$(NAME).iso
+BASE       := $(PWD)/base
+INCLUDE    := $(BASE)/include
+BIN        := $(BASE)/bin
+AFLAGS     := -f elf32 -g
+CFLAGS     := -I$(INCLUDE) -O1 -std=gnu11 -ffreestanding -Wno-ignored-attributes
+LDFLAGS    := -nostdlib -m elf_i386
+BUILD      := build
+OBJ_DIR    := $(BUILD)/obj/
 
-all: $(ISO)
+MAKE       := $(MAKE) -s
+ISODIR     := $(PWD)/isodir
+KERNEL     := $(ISODIR)/boot/$(NAME).bin
 
-build:
-	mkdir -p build
+PROJECTS   := kernel 
+PROJ_SETUP := $(PROJECTS:=.setup)
+PROJ_CLEAN := $(PROJECTS:=.clean)
 
-$(BIN): $(SRC_ASM) $(SRC_C) | build
-	$(ASM) -f elf32 $(SRC_ASM) -o build/boot.o
-	$(CC) $(CFLAGS) -c $(SRC_C) -o build/kernel.o
-	$(LD) $(LDFLAGS) -o $(BIN) build/boot.o build/kernel.o
-	grub-file --is-x86-multiboot2 $(BIN)
+CFLAGS     += -target i386-pc-none-eabi -m32 -g -mno-mmx -mno-sse -mno-sse2
 
-$(ISO): $(BIN)
-	mkdir -p build/iso/boot/grub
-	cp $(BIN) build/iso/boot/kernel.bin
-	cp $(GRUB_CFG) build/iso/boot/grub/grub.cfg
-	grub-mkrescue -o $(ISO) build/iso
+.PHONY: all build qemu clean
 
-run: $(ISO)
-	qemu-system-i386 -cdrom $(ISO)
+all: build $(ISO)
 
-clean:
-	rm -rf build
+build: initial $(PROJECTS)
 
-.PHONY: all run clean
+# Copy headers before building anything
+$(PROJECTS): $(PROJ_SETUP)
+	@$(MAKE) -C $@ build
+
+$(ISO): $(PROJECTS)
+	@printf "[ building ISO... ]\n"
+	@mkdir -p $(ISODIR)/boot/grub
+	@grub-mkrescue -o $@ $(ISODIR) -V $(NAME)
+
+qemu: all
+	@qemu-system-i386 -cdrom $(ISO)
+
+debug: $(ISO)
+	@qemu-system-i386 -cdrom $(ISO) -S -s      &
+	@gdb $(KERNEL)                             \
+		-ex 'break kernel_main'                \
+		-ex 'set architecture i386' 		   \
+		-ex 'target remote :1234'              \
+
+clean: $(PROJ_CLEAN)
+	@rm -f $(ISO)
+	@rm -rf $(BASE)
+	@rm -rf $(ISODIR)
+
+initial:
+	@mkdir -p $(BASE)
+	@mkdir -p $(INCLUDE)
+	@mkdir -p $(ISODIR)/boot/grub
+
+%.setup: %/
+	@$(MAKE) -C $< setup
+
+%.clean: %/
+	@$(MAKE) -C $< clean

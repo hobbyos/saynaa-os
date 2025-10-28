@@ -1,7 +1,6 @@
 ENTRY(_start)
 
-SECTIONS
-{
+SECTIONS {
     . = 1M; /* Load address: 0x00100000 */
 
     .text : {
