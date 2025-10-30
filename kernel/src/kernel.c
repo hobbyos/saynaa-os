@@ -1,18 +1,24 @@
 #include "kernel/kernel.h"
 
+#include "kernel/cpu/gdt.h"
+#include "kernel/cpu/idt.h"
+#include "kernel/lib/console.h"
+#include "kernel/lib/kprintf.h"
+#include "kernel/lib/vga.h"
+
 void kernel_main() {
-  char *video = (char *)VGA_ADDRESS;
-  const char *msg = "Hello, world from GRUB kernel!";
+    init_gdt();
+    init_idt();
 
-  int i = 0;
-  while (msg[i] != '\0') {
-    video[i * 2] = msg[i];
-    video[i * 2 + 1] = 0x07;
-    i++;
-  }
+    console_init(COLOR_WHITE, COLOR_BLACK);
 
-  // infinite loop to keep kernel running
-  while (1) {
-    asm volatile("hlt");
-  }
+    // raise division by zero, eax=0x7b, ecx=0
+    // asm volatile("\txorl %edx, %edx");
+    // asm volatile("\tmovl $0x7b, %eax");
+    // asm volatile("\tmovl $0, %ecx");
+    // asm volatile("\tidivl %ecx");
+
+    kprintf("Saynaa OS, from scratch\n");
+
+    infinite_loop();
 }

@@ -9,6 +9,7 @@ ISO        := $(PWD)/$(NAME).iso
 BASE       := $(PWD)/base
 INCLUDE    := $(BASE)/include
 BIN        := $(BASE)/bin
+LIB        := $(BASE)/lib
 AFLAGS     := -f elf32 -g
 CFLAGS     := -I$(INCLUDE) -O1 -std=gnu11 -ffreestanding -Wno-ignored-attributes
 LDFLAGS    := -nostdlib -m elf_i386
@@ -19,7 +20,7 @@ MAKE       := $(MAKE) -s
 ISODIR     := $(PWD)/isodir
 KERNEL     := $(ISODIR)/boot/$(NAME).bin
 
-PROJECTS   := kernel 
+PROJECTS   := kernel libraries
 PROJ_SETUP := $(PROJECTS:=.setup)
 PROJ_CLEAN := $(PROJECTS:=.clean)
 
@@ -30,6 +31,8 @@ CFLAGS     += -target i386-pc-none-eabi -m32 -g -mno-mmx -mno-sse -mno-sse2
 all: build $(ISO)
 
 build: initial $(PROJECTS)
+
+kernel: libraries
 
 # Copy headers before building anything
 $(PROJECTS): $(PROJ_SETUP)
@@ -61,7 +64,7 @@ initial:
 	@mkdir -p $(ISODIR)/boot/grub
 
 %.setup: %/
-	@$(MAKE) -C $< setup
+	@$(MAKE) -C $< setup target=$<
 
 %.clean: %/
 	@$(MAKE) -C $< clean

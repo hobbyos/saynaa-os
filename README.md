@@ -29,14 +29,6 @@ make qemu
 ```
 
 -----------------------------------------
-Clean Build Files
-
-Run:
-```bash
-make clean
-```
-
------------------------------------------
 License
 
 MIT License — free to use, modify, and distribute.

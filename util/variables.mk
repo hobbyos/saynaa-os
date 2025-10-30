@@ -1,6 +1,6 @@
 BUILD     := build
 OBJ_DIR   := $(BUILD)/obj/
-LDFLAGS   := $(LDFLAGS) -T linker.ld
+LDFLAGS   := $(LDFLAGS) -T linker.ld -L$(LIB)
 
 C_SRCS    := $(shell find src -type f -name '*.c')
 A_SRCS    := $(shell find src -type f -name '*.asm')

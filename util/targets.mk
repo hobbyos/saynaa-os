@@ -15,4 +15,4 @@ clean:
 	@rm -rf $(BUILD)
 
 setup:
-	[ -d include ] && cp -rT include $(INCLUDE)
+	[ -d include ] && cp -rT include $(INCLUDE)/$(target)

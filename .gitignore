@@ -4,6 +4,8 @@ obj/
 base/
 temp/
 isodir/
+.vs/
+.vscode/
 
 # Ignore editor files
 *.swp
