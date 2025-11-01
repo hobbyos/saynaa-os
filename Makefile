@@ -11,7 +11,6 @@ INCLUDE    := $(BASE)/include
 BIN        := $(BASE)/bin
 LIB        := $(BASE)/lib
 AFLAGS     := -f elf32 -g
-CFLAGS     := -I$(INCLUDE) -O1 -std=gnu11 -ffreestanding -Wno-ignored-attributes
 LDFLAGS    := -nostdlib -m elf_i386
 BUILD      := build
 OBJ_DIR    := $(BUILD)/obj/
@@ -24,7 +23,11 @@ PROJECTS   := kernel libraries
 PROJ_SETUP := $(PROJECTS:=.setup)
 PROJ_CLEAN := $(PROJECTS:=.clean)
 
-CFLAGS     += -target i386-pc-none-eabi -m32 -g -mno-mmx -mno-sse -mno-sse2
+CFLAGS     := -std=gnu11 -ffreestanding -g -O0 \
+              -I$(INCLUDE) \
+              -target i386-pc-none-eabi -m32 \
+              -mno-mmx -mno-sse -mno-sse2 \
+              -Wno-ignored-attributes
 
 .PHONY: all build qemu clean
 

@@ -1,5 +1,6 @@
 #include "kernel/kernel.h"
 
+#include "kernel/cpu/fpu.h"
 #include "kernel/cpu/gdt.h"
 #include "kernel/cpu/idt.h"
 #include "kernel/lib/console.h"
@@ -7,6 +8,7 @@
 #include "kernel/lib/vga.h"
 
 void kernel_main() {
+    init_fpu();
     init_gdt();
     init_idt();
 
@@ -19,6 +21,7 @@ void kernel_main() {
     // asm volatile("\tidivl %ecx");
 
     kprintf("Saynaa OS, from scratch\n");
+    kprintf("PI value %.10f\n", 3.1415926535);
 
     infinite_loop();
 }

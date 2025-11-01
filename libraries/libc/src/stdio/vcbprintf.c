@@ -3,6 +3,9 @@
 #include "libc/stdlib.h"
 #include "libc/string.h"
 
+static size_t convert_integer(char* destination, uintmax_t value, uintmax_t base, const char* digits);
+static size_t convert_float(char* destination, double value, uintmax_t base, const char* digits, size_t precision);
+
 static size_t convert_integer(char* destination, uintmax_t value, uintmax_t base, const char* digits) {
     size_t result = 1;
     uintmax_t copy = value;
@@ -13,6 +16,35 @@ static size_t convert_integer(char* destination, uintmax_t value, uintmax_t base
         value /= base;
     }
     return result;
+}
+
+static size_t convert_float(char* destination, double value, uintmax_t base, const char* digits, size_t precision) {
+    size_t length = 0;
+
+    // Handle negative numbers
+    if (value < 0) {
+        destination[length++] = '-';
+        value = -value;
+    }
+
+    // Convert integer part
+    uintmax_t int_part = (uintmax_t) value;
+    double frac_part = value - int_part;
+
+    length += convert_integer(destination + length, int_part, base, digits);
+
+    // Handle fractional part
+    if (precision > 0) {
+        destination[length++] = '.'; // decimal point
+        for (size_t i = 0; i < precision; i++) {
+            frac_part *= base;
+            uintmax_t digit = (uintmax_t) frac_part;
+            destination[length++] = digits[digit % base];
+            frac_part -= digit;
+        }
+    }
+
+    return length;
 }
 
 static size_t noop_callback(void* ctx, const char* str, size_t amount) {
@@ -293,10 +325,8 @@ int vcbprintf(void* ctx, size_t (*callback)(void*, const char*, size_t), const c
                     written++;
                 }
             }
-        }
-#ifndef __is_sortix_libk
-        else if (*format == 'e' || *format == 'E' || *format == 'f' || *format == 'F'
-                 || *format == 'g' || *format == 'G' || *format == 'a' || *format == 'A') {
+        } else if (*format == 'e' || *format == 'E' || *format == 'f' || *format == 'F'
+                   || *format == 'g' || *format == 'G' || *format == 'a' || *format == 'A') {
             char conversion = *format++;
 
             long double value;
@@ -307,14 +337,49 @@ int vcbprintf(void* ctx, size_t (*callback)(void*, const char*, size_t), const c
             else
                 goto incomprehensible_conversion;
 
-            // TODO: Implement floating-point printing.
-            (void) conversion;
-            (void) value;
+            // Prepare buffer
+            // Buffer for float conversion
+            // WARNING: This buffer is only safe for reasonably small floats and moderate precision (e.g., <100 decimal digits).
+            // Large numbers or very high precision may overflow this buffer.
+            char float_buffer[128]; // Enough for most practical uses
+            size_t precision_value = precision == SIZE_MAX ? 6 : precision; // default precision: 6
+            size_t float_length = convert_float(float_buffer, (double) value, 10, "0123456789", precision_value);
 
-            goto unsupported_conversion;
-        }
-#endif
-        else if (*format == 'c' && (format++, true)) {
+            // Handle sign and left/right padding
+            size_t total_length = float_length;
+            bool negative_value = ((double) value < 0);
+
+            if (negative_value || prepend_plus_if_positive || prepend_blank_if_positive) {
+                char sign = negative_value ? '-' : (prepend_plus_if_positive ? '+' : ' ');
+                if (callback(ctx, &sign, 1) != 1)
+                    return -1;
+                total_length++;
+            }
+
+            // Apply field width padding
+            if (abs_field_width > total_length && !field_width_is_negative) {
+                for (size_t i = total_length; i < abs_field_width; i++) {
+                    if (callback(ctx, " ", 1) != 1)
+                        return -1;
+                    written++;
+                }
+            }
+
+            // Print the float
+            if (callback(ctx, float_buffer, float_length) != float_length)
+                return -1;
+            written += float_length;
+
+            // Right padding if negative field width
+            if (field_width_is_negative && abs_field_width > total_length) {
+                for (size_t i = total_length; i < abs_field_width; i++) {
+                    if (callback(ctx, " ", 1) != 1)
+                        return -1;
+                    written++;
+                }
+            }
+
+        } else if (*format == 'c' && (format++, true)) {
             char c;
             if (length == LENGTH_DEFAULT)
                 c = (char) va_arg(parameters, int);
