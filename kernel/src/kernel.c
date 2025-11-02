@@ -7,15 +7,19 @@
 #include "kernel/cpu/serial.h"
 #include "kernel/lib/fb.h"
 #include "kernel/lib/kprintf.h"
+#include "kernel/mem/paging.h"
+#include "kernel/mem/pmm.h"
 
 void kernel_main(mb2_t* boot, uint32_t magic) {
     init_serial();
     init_fpu();
-    init_fb(boot);
-    set_text_color(vga_to_color(0), vga_to_color(15));
-
     init_gdt();
     init_idt();
+    init_pmm(boot);
+    init_paging(boot);
+
+    init_fb(boot);
+    set_text_color(vga_to_color(0), vga_to_color(15));
 
     if (magic != MB2_MAGIC) {
         kprintf("warning: invalid magic number from GRUB (%p)!", magic);

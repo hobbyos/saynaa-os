@@ -1,29 +1,30 @@
 ENTRY(_start)
 
-PHDRS {
-    text PT_LOAD FLAGS(5);  /* Read + Execute */
-    data PT_LOAD FLAGS(6);  /* Read + Write */
-    bss  PT_LOAD FLAGS(6);  /* Read + Write */
-}
-
 SECTIONS {
-    . = 1M; /* Load address: 0x00100000 */
 
-    .text : {
-        *(.multiboot)   /* Multiboot header */
-        *(.text*)       /* Bootloader and kernel text */
-    } :text             /* assign to PHDR "text" */
+    . = 0xC0100000;
 
-    .rodata : {
-        *(.rodata*)     /* Read-only data */
-    } :text             /* assign to PHDR "text" */
+	__kernel_start_virt__ = .;
+	__kernel_start_phys__ = . - 0xC0000000;
 
-    .data : {
-        *(.data*)       /* Initialized data */
-    } :data             /* assign to PHDR "data" */
+    .text : AT(ADDR(.text) - 0xC0000000) {
+		*(.multiboot)
+		*(.text)
+	}
 
-    .bss : {
-        *(.bss*)
-        *(COMMON)
-    } :bss              /* assign to PHDR "bss" */
+    .rodata ALIGN(4K) : AT(ADDR(.rodata) - 0xC0000000) {
+		*(.rodata)
+	}
+
+    .data ALIGN(4K) : AT(ADDR(.data) - 0xC0000000) {
+		*(.data)
+	}
+
+    .bss : AT(ADDR(.bss) - 0xC0000000) {
+		*(.bss)
+	}
+
+    __kernel_end_virt__ = .;
+	__kernel_end_phys__ = . - 0xC0000000;
+	__kernel_size__     = __kernel_end_virt__ - __kernel_start_virt__;
 }
