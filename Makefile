@@ -47,7 +47,7 @@ $(ISO): $(PROJECTS)
 	@grub-mkrescue -o $@ $(ISODIR) -V $(NAME)
 
 qemu: all
-	@qemu-system-i386 -cdrom $(ISO)
+	@qemu-system-i386 -cdrom $(ISO) -serial file:serial.log
 
 debug: $(ISO)
 	@qemu-system-i386 -cdrom $(ISO) -S -s      &

@@ -7,11 +7,15 @@ Requirements
 
 Tools needed:
 
+- binutils           : Binary utilities (like ld, objcopy, etc.)
 - nasm               : Assembler
 - qemu-system-i386   : Emulator
-- make               : Build automation (usually preinstalled)
+- make               : Build automation
 - clang              : C compiler
-- grub               : Create bootable ISO with GRUB
+- grub               : Bootloader used to create a bootable ISO for your OS.
+- xorriso            : Required by GRUB to generate bootable ISO images.
+- gdb               : Debugger (optional, for debugging purposes)
+
 
 -----------------------------------------
 Build Instructions

@@ -3,11 +3,13 @@
 #include "kernel/cpu/fpu.h"
 #include "kernel/cpu/gdt.h"
 #include "kernel/cpu/idt.h"
+#include "kernel/cpu/serial.h"
 #include "kernel/lib/console.h"
 #include "kernel/lib/kprintf.h"
 #include "kernel/lib/vga.h"
 
 void kernel_main() {
+    init_serial();
     init_fpu();
     init_gdt();
     init_idt();

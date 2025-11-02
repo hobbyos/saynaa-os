@@ -1,5 +1,6 @@
 #include "kernel/lib/console.h"
 
+#include "kernel/cpu/serial.h"
 #include "kernel/lib/kprintf.h"
 
 static uint16_t* g_vga_buffer;
@@ -149,6 +150,7 @@ void console_gotoxy(uint16_t x, uint16_t y) {
 void console_putstr(const char* str) {
     uint32_t index = 0;
     while (str[index]) {
+        write_serial(str[index]);
         if (str[index] == '\n')
             console_newline();
         else
@@ -156,4 +158,3 @@ void console_putstr(const char* str) {
         index++;
     }
 }
-
