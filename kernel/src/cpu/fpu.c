@@ -31,6 +31,17 @@ void init_fpu() {
     isr_register_handler(19, fpu_exception_handler);
 }
 
+/* Whatever process got interrupted last has its fpu state in kernel_fpu.
+ * When this function is called, it is being switched away from, hence we save
+ * kernel_fpu in that process's structure, and we load the next process's fpu
+ * state into kernel_fpu, which will get picked up by fpu_kernel_exit soon
+ * enough.
+ */
+void fpu_switch(process_t* prev, const process_t* next) {
+    memcpy(prev->fpu_registers, kernel_fpu, 512);
+    memcpy(kernel_fpu, next->fpu_registers, 512);
+}
+
 // Save the FPU state and initialize it for kernel use
 void fpu_kernel_enter() {
     asm volatile("fxsave (%0)\n"

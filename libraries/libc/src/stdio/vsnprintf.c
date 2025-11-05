@@ -9,13 +9,14 @@ struct vsnprintf {
 
 static size_t vsnprintf_callback(void* ctx, const char* string, size_t length) {
     struct vsnprintf* state = (struct vsnprintf*) ctx;
-    if (1 <= state->size && state->written < state->size) {
+    if (state->size > 0 && state->written < state->size) {
         size_t available = state->size - state->written;
         size_t possible = length < available ? length : available;
         memcpy(state->str + state->written, string, possible);
         state->written += possible;
+        return possible;
     }
-    return length;
+    return 0; // wrote nothing
 }
 
 int vsnprintf(char* restrict str, size_t size, const char* restrict format, va_list list) {

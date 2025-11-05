@@ -45,7 +45,7 @@ uint32_t mem_block_size(mem_block_t* block) {
 }
 
 /* Returns the block corresponding to `pointer`, given that `pointer` was
- * previously returned by a call to `malloc`.
+ * previously returned by a call to `kmalloc`.
  */
 mem_block_t* mem_get_block(void* pointer) {
     uintptr_t addr = (uintptr_t) pointer;
@@ -116,7 +116,7 @@ mem_block_t* mem_find_block(uint32_t size, uint32_t align) {
 
 /* Returns a pointer to a memory area of at least `size` bytes.
  */
-void* malloc(size_t size) {
+void* kmalloc(size_t size) {
     // Accessing basic datatypes at unaligned addresses is apparently undefined
     // behavior. Four-bytes alignement should be enough for most things.
     return aligned_alloc(MIN_ALIGN, size);
@@ -128,30 +128,30 @@ void* malloc(size_t size) {
  * This function changes the size of the memory block pointed to by `ptr` to `size` bytes.
  * The contents will be unchanged to the minimum of the old and new sizes; newly allocated memory will be uninitialized.
  *
- * @param ptr Pointer to the memory block to be reallocated. If NULL, the function behaves like malloc.
+ * @param ptr Pointer to the memory block to be reallocated. If NULL, the function behaves like kmalloc.
  * @param size New size of the memory block in bytes. If size is 0 and ptr is not NULL, the function behaves like free.
  * @return Pointer to the newly allocated memory block, or NULL if the allocation fails or if size is 0 and ptr is not NULL.
  */
-void* realloc(void* ptr, size_t size) {
+void* krealloc(void* ptr, size_t size) {
     if (!ptr) {
-        return malloc(size);
+        return kmalloc(size);
     }
 
     if (!size) {
-        free(ptr);
+        kfree(ptr);
         return NULL;
     }
 
-    void* new = malloc(size);
+    void* new = kmalloc(size);
     memcpy(new, ptr, mem_get_block(ptr)->size & ~1);
-    free(ptr);
+    kfree(ptr);
 
     return new;
 }
 
-/* Frees a pointer previously returned by `malloc`.
+/* Frees a pointer previously returned by `kmalloc`.
  */
-void free(void* pointer) {
+void kfree(void* pointer) {
     if (!pointer) {
         return;
     }

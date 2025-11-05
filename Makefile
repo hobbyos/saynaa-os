@@ -19,7 +19,7 @@ MAKE       := $(MAKE) -s
 ISODIR     := $(PWD)/isodir
 KERNEL     := $(ISODIR)/boot/$(NAME).bin
 
-PROJECTS   := kernel libraries
+PROJECTS   := kernel libraries userspace
 PROJ_SETUP := $(PROJECTS:=.setup)
 PROJ_CLEAN := $(PROJECTS:=.clean)
 
@@ -36,6 +36,7 @@ all: build $(ISO)
 build: initial $(PROJECTS)
 
 kernel: libraries
+userspace: libraries
 
 # Copy headers before building anything
 $(PROJECTS): $(PROJ_SETUP)
@@ -48,6 +49,7 @@ $(ISO): $(PROJECTS)
 
 qemu: all
 	@qemu-system-i386 -cdrom $(ISO) -serial file:serial.log
+	@cat serial.log
 
 debug: $(ISO)
 	@qemu-system-i386 -cdrom $(ISO) -S -s      &

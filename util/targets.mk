@@ -15,4 +15,7 @@ clean:
 	@rm -rf $(BUILD)
 
 setup:
-	[ -d include ] && cp -rT include $(INCLUDE)/$(target)
+	@if [ -d include ]; then \
+		mkdir -p "$(INCLUDE)/$(target)"; \
+		cp -a include/. "$(INCLUDE)/$(target)/"; \
+	fi

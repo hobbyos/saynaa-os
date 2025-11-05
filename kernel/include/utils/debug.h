@@ -2,6 +2,7 @@
 
 #include "kernel/lib/kprintf.h"
 #include "libc/stdint.h"
+#include "libc/string.h"
 
 #define STR(x) #x
 #define assert(expr) \

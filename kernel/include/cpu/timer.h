@@ -1,0 +1,18 @@
+#pragma once
+
+#include "kernel/cpu/isr.h"
+
+void init_timer();
+void timer_callback(REGISTERS* regs);
+uint32_t timer_get_tick();
+double timer_get_time();
+void timer_register_callback(ISR handler);
+
+#define TIMER_FREQ 10 // in Hz
+#define TIMER_QUOTIENT 1193180
+
+#define PIT_0 0x40
+#define PIT_1 0x41
+#define PIT_2 0x42
+#define PIT_CMD 0x43
+#define PIT_SET 0x36

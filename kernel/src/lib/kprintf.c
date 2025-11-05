@@ -5,6 +5,7 @@
 #include "kernel/lib/font.h"
 #include "libc/string.h"
 
+int font_scale = 1;
 int pos_x = 0, pos_y = 0;
 int pos_x2 = 0;
 
@@ -24,17 +25,26 @@ void set_text_color(uint32_t fg, uint32_t bg) {
     back_color = bg;
 }
 
+void set_font_scale(int scale) {
+    if (scale < 1)
+        scale = 1;
+    font_scale = scale;
+}
+
 void print_ch(char c) {
-    int lx;
-    int ly;
+    int lx, ly, sx, sy;
     uint8_t* bitmap = (uint8_t*) font8x8_basic[c % 128];
-    for (lx = 0; lx < GLYPH_WIDTH; lx++) {
-        for (ly = 0; ly < GLYPH_HEIGHT; ly++) {
-            uint8_t row = bitmap[ly];
-            if ((row >> lx) & 1)
-                draw_pixel(pos_x + lx, pos_y + ly, fore_color);
-            else
-                draw_pixel(pos_x + lx, pos_y + ly, back_color);
+    for (ly = 0; ly < GLYPH_HEIGHT; ly++) {
+        uint8_t row = bitmap[ly];
+        for (lx = 0; lx < GLYPH_WIDTH; lx++) {
+            uint32_t color = ((row >> lx) & 1) ? fore_color : back_color;
+
+            // scale each pixel into a block of pixels
+            for (sy = 0; sy < font_scale; sy++) {
+                for (sx = 0; sx < font_scale; sx++) {
+                    draw_pixel(pos_x + lx * font_scale + sx, pos_y + ly * font_scale + sy, color);
+                }
+            }
         }
     }
 }
@@ -42,15 +52,15 @@ void print_ch(char c) {
 void vbe_print_char(char c) {
     write_serial(c);
     if (c == '\n') {
-        pos_y += GLYPH_HEIGHT;
+        pos_y += GLYPH_HEIGHT * font_scale;
         pos_x = pos_x2;
     } else if (c == '\b') {
-        pos_x -= GLYPH_WIDTH;
+        pos_x -= GLYPH_WIDTH * font_scale;
     } else if (c == '\r') {
         pos_x = pos_x2;
     } else {
         print_ch(c);
-        pos_x += GLYPH_WIDTH;
+        pos_x += GLYPH_WIDTH * font_scale;
     }
 }
 
